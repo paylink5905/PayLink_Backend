@@ -10,6 +10,7 @@ const updateServiceService = async ({
         'name',
         'description',
         'amount',
+        'email',
         'phone',
         'type',
         'tenure_months',

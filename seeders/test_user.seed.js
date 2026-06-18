@@ -13,7 +13,7 @@ module.exports = {
         password: await hashPassword('password'),
         created_at: new Date(),
         updated_at: new Date(),
-      },
+      },ss
     ]);
   },
 

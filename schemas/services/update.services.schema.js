@@ -30,6 +30,16 @@ const updateServiceSchema = z.object({
     .min(0, 'Amount cannot be negative')
     .optional(),
 
+    email: z.string({
+        error: (issue) => {
+            if(issue.input === undefined) return "Email is required";
+            if(issue.code === 'invalid_type') return "Email must be a string";
+        }
+    })
+    .min(1, 'Email must not be empty')
+    .max(100, "Email must not be greater than 100 characters")
+    .optional(),
+
     tenure_months: z.number({
         error: (issue) => {
             if (issue.input === undefined) return 'Tenure months is required';
