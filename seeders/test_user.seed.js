@@ -1,25 +1,25 @@
 'use strict';
+
 const hashPassword = require('../utils/bcrypt/hash.bcrypt.util');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('users', [
       {
-        id: 1,
-        first_name: 'Test',
+        first_name: 'Krishna',
         middle_name: null,
-        last_name: 'User',
-        email: 'test@example.com',
-        password: await hashPassword('password'),
+        last_name: 'Patel',
+        email: 'krishna@paylink.com',
+        password: await hashPassword('krishna_004'),
         created_at: new Date(),
         updated_at: new Date(),
-      },ss
+      },
     ]);
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('users', {
-      email: 'test@example.com',
+      email: 'krishna@paylink.com',
     });
   },
 };
