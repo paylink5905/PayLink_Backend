@@ -10,7 +10,7 @@ module.exports = {
         middle_name: null,
         last_name: 'Patel',
         email: 'krishna@paylink.com',
-        password: await hashPassword('krishna_004'),
+        password: await hashPassword('Krishna_004'),
         created_at: new Date(),
         updated_at: new Date(),
       },
