@@ -50,6 +50,15 @@ const createPaymentLinkSchema = z.object({
     .min(10, 'Phone must be at least 10 characters')
     .max(20, 'Phone cannot exceed 20 characters'),
 
+    email: z.string({
+        error: (issue) => {
+            if (issue.input === undefined) return 'Email must be a string';
+            if (issue.code === 'invalid_type') return 'Email must be a string';
+        }
+    })
+    .email('Email must be valid')
+    .optional(),
+
     type: z.enum(['LOAN', 'ONE_TIME'], {
         error: (issue) => {
             if (issue.input === undefined) return 'Type is required';

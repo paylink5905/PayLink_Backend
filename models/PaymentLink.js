@@ -31,6 +31,23 @@ module.exports = (sequelize, DataTypes) => {
     service_id: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    razorpay_link_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true
+    },
+    razorpay_short_url: {
+        type: DataTypes.STRING(500),
+        allowNull: true
+    },
+    razorpay_status: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+    },
+    razorpay_error: {
+        type: DataTypes.TEXT,
+        allowNull: true
     }
   }, {
     sequelize,
