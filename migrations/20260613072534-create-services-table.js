@@ -11,7 +11,7 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       email: {
         type: Sequelize.STRING(100),
@@ -19,7 +19,7 @@ module.exports = {
       },
       phone: {
         type: Sequelize.STRING(20),
-        allowNull: false,
+        allowNull: true,
       },
       description: {
         type: Sequelize.TEXT,
@@ -32,6 +32,7 @@ module.exports = {
       type: {
         type: Sequelize.ENUM('LOAN', 'ONE_TIME', 'PRODUCT'),
         allowNull: false,
+        defaultValue: 'ONE_TIME',
       },
       tenure_months: {
         type: Sequelize.INTEGER,

@@ -12,24 +12,26 @@ const tenureMonthsSchema = z.preprocess(
     .optional()
 );
 
-const createPaymentLinkSchema = z.object({
-    name: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Name is required';
-            if (issue.code === 'invalid_type') return 'Name must be a string';
-        }
-    })
-    .min(1, 'Name cannot be empty')
-    .max(100, 'Name cannot exceed 100 characters'),
+const optionalString = (max, message) => z.preprocess(
+    (value) => value === null || value === '' ? undefined : value,
+    z.string().max(max, message).optional()
+);
 
-    description: z.string({
+const optionalEmail = z.preprocess(
+    (value) => value === null || value === '' ? undefined : value,
+    z.string({
         error: (issue) => {
-            if (issue.input === undefined) return 'Description is required';
-            if (issue.code === 'invalid_type') return 'Description must be a string';
+            if (issue.code === 'invalid_type') return 'Email must be a string';
         }
     })
-    .min(1, 'Description cannot be empty')
-    .max(500, 'Description cannot exceed 500 characters'),
+    .email('Email must be valid')
+    .optional()
+);
+
+const createPaymentLinkSchema = z.object({
+    name: optionalString(100, 'Name cannot exceed 100 characters'),
+
+    description: optionalString(500, 'Description cannot exceed 500 characters'),
 
     amount: z.number({
         error: (issue) => {
@@ -41,30 +43,15 @@ const createPaymentLinkSchema = z.object({
 
     tenure_months: tenureMonthsSchema,
 
-    phone: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Phone is required';
-            if (issue.code === 'invalid_type') return 'Phone must be a string';
-        }
-    })
-    .min(10, 'Phone must be at least 10 characters')
-    .max(20, 'Phone cannot exceed 20 characters'),
+    phone: optionalString(20, 'Phone cannot exceed 20 characters'),
 
-    email: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Email must be a string';
-            if (issue.code === 'invalid_type') return 'Email must be a string';
-        }
-    })
-    .email('Email must be valid')
-    .optional(),
+    email: optionalEmail,
 
     type: z.enum(['LOAN', 'ONE_TIME'], {
         error: (issue) => {
-            if (issue.input === undefined) return 'Type is required';
             return 'Type must be either LOAN or ONE_TIME';
         }
-    }),
+    }).default('ONE_TIME'),
 
     status: z.enum(['UNPAID', 'PAID'], {
         error: (issue) => {
@@ -74,14 +61,6 @@ const createPaymentLinkSchema = z.object({
     }).default('UNPAID'),
 }, {
     message: 'Invalid input data',
-}).superRefine((data, ctx) => {
-    if (data.type === 'LOAN' && !data.tenure_months) {
-        ctx.addIssue({
-            code: 'custom',
-            path: ['tenure_months'],
-            message: 'Tenure months is required for loan payment links',
-        });
-    }
 });
 
 module.exports = createPaymentLinkSchema;
