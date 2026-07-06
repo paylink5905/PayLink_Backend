@@ -3,11 +3,25 @@ const Razorpay = require('razorpay');
 const AppError = require("../../custom_classes/AppError.custom_class");
 const { PaymentLink, Service } = require("../../models");
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+let razorpay = null;
+
+const getRazorpayClient = () => {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+        throw new AppError('Razorpay credentials are not configured', 500);
+    }
+
+    if (!razorpay) {
+        razorpay = new Razorpay({
+            key_id: keyId,
+            key_secret: keySecret,
+        });
+    }
+
+    return razorpay;
+};
 
 const createPaymentLinkService = async ({
     name,
@@ -76,7 +90,7 @@ const createPaymentLinkService = async ({
                 customer: customerPayload
             };
 
-            const razorpayResponse = await razorpay.paymentLink.create(razorpayPayload);
+            const razorpayResponse = await getRazorpayClient().paymentLink.create(razorpayPayload);
             const shortUrl = razorpayResponse.short_url || razorpayResponse.url || null;
             if (!shortUrl) {
                 throw new AppError('Razorpay did not return a payment URL', 502);
