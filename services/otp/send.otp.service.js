@@ -8,8 +8,8 @@ const RESET_PASSWORD = "RESET_PASSWORD";
 exports.sendOtpToEmail = async (otp, email) => {
   await sendEmail({
     to: email,
-    subject: "PayLink password reset OTP",
-    text: `Your PayLink password reset OTP is: ${otp}. It is valid for 10 minutes.`,
+    subject: "Mpoket password reset OTP",
+    text: `Your Mpoket password reset OTP is: ${otp}. It is valid for 10 minutes.`,
   });
 };
 

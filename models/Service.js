@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING(100),
-      allowNull: false,
+      allowNull: true,
     },
     email: {
       type: DataTypes.STRING(100),
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     phone: {
       type: DataTypes.STRING(20),
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.TEXT,
@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     type: {
       type: DataTypes.ENUM('LOAN', 'ONE_TIME', 'PRODUCT'),
       allowNull: false,
+      defaultValue: 'ONE_TIME',
     },
     tenure_months: {
       type: DataTypes.INTEGER,

@@ -1,25 +1,14 @@
 const { z } = require('zod');
 
-const updateServiceSchema = z.object({
-    name: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Name is required';
-            if (issue.code === 'invalid_type') return 'Name must be a string';
-        }
-    })
-    .min(1, 'Name cannot be empty')
-    .max(100, 'Name cannot exceed 100 characters')
-    .optional(),
+const optionalString = (max, message) => z.preprocess(
+    (value) => value === null || value === '' ? undefined : value,
+    z.string().max(max, message).optional()
+);
 
-    description: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Description is required';
-            if (issue.code === 'invalid_type') return 'Description must be a string';
-        }
-    })
-    .min(1, 'Description cannot be empty')
-    .max(500, 'Description cannot exceed 500 characters')
-    .optional(),
+const updateServiceSchema = z.object({
+    name: optionalString(100, 'Name cannot exceed 100 characters'),
+
+    description: optionalString(500, 'Description cannot exceed 500 characters'),
 
     amount: z.number({
         error: (issue) => {
@@ -40,25 +29,15 @@ const updateServiceSchema = z.object({
     .max(100, "Email must not be greater than 100 characters")
     .optional(),
 
-    tenure_months: z.number({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Tenure months is required';
-            if (issue.code === 'invalid_type') return 'Tenure months must be a number';
-        }
-    })
+    tenure_months: z.preprocess(
+    (value) => value === null || value === '' ? undefined : value,
+    z.number()
     .min(1, 'Tenure months must be at least 1')
     .max(120, 'Tenure months cannot exceed 120')
-    .optional(),
+    .optional()
+    ),
 
-    phone: z.string({
-        error: (issue) => {
-            if (issue.input === undefined) return 'Phone is required';
-            if (issue.code === 'invalid_type') return 'Phone must be a string';
-        }
-    })
-    .min(10, 'Phone must be at least 10 characters')
-    .max(20, 'Phone cannot exceed 20 characters')
-    .optional(),
+    phone: optionalString(20, 'Phone cannot exceed 20 characters'),
 
     type: z.enum(['LOAN', 'ONE_TIME'], {
     error: (issue) => {

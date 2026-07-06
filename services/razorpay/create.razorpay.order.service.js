@@ -16,7 +16,7 @@ const createPaymentLinkService = async ({ amount, currency, receipt, description
             amount: amount, // in paise
             currency: currency || 'INR',
             accept_partial: false,
-            description: description || 'Payment via PayLink',
+            description: description || 'Payment via Mpoket',
             customer_notify: 1,
         };
 

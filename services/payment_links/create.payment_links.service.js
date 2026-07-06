@@ -20,14 +20,22 @@ const createPaymentLinkService = async ({
     status,
     userId,
 }) => {
+    const serviceName = name || null;
+    const serviceDescription = description || null;
+    const servicePhone = phone || null;
+    const serviceEmail = email || null;
+    const serviceType = type || 'ONE_TIME';
+    const serviceStatus = status || 'UNPAID';
+
     const service = await Service.create({
-        name,
-        description,
+        name: serviceName,
+        description: serviceDescription,
         amount,
-        phone,
-        type,
-        tenure_months: type === 'LOAN' ? tenure_months : null,
-        status,
+        phone: servicePhone,
+        email: serviceEmail,
+        type: serviceType,
+        tenure_months: serviceType === 'LOAN' ? tenure_months || null : null,
+        status: serviceStatus,
         user_id: userId
     });
 
@@ -37,7 +45,7 @@ const createPaymentLinkService = async ({
     const paymentLink = await PaymentLink.create({
         payment_link: `/pay/${token}`,
         expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        status: status === 'PAID' ? 'PAID' : 'PENDING',
+        status: serviceStatus === 'PAID' ? 'PAID' : 'PENDING',
         service_id: service.id,
     });
 
@@ -50,20 +58,20 @@ const createPaymentLinkService = async ({
 
         try {
             const customerPayload = {
-                name,
+                name: serviceName || 'Customer',
                 ...(email ? { email } : {}),
             };
 
-            const phoneDigits = String(phone || '').replace(/\D+/g, '');
+            const phoneDigits = String(servicePhone || '').replace(/\D+/g, '');
             if (phoneDigits) {
                 customerPayload.contact = phoneDigits;
             }
 
-            const referenceId = String(paymentLink.payment_link || `paylink_${paymentLink.id}`);
+            const referenceId = String(paymentLink.payment_link || `mpoket_${paymentLink.id}`);
             razorpayPayload = {
                 amount: Math.round(Number(amount) * 100), // Convert to paise
                 currency: 'INR',
-                description: description || `Payment for ${name}`,
+                description: serviceDescription || `Payment request for Rs. ${Number(amount).toLocaleString('en-IN')}`,
                 reference_id: referenceId.slice(0, 40),
                 customer: customerPayload
             };

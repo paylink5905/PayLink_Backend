@@ -9,7 +9,7 @@ module.exports = {
         first_name: 'Krishna',
         middle_name: null,
         last_name: 'Patel',
-        email: 'krishna@paylink.com',
+        email: 'krishna@mpoket.com',
         password: await hashPassword('Krishna_004'),
         created_at: new Date(),
         updated_at: new Date(),
@@ -19,7 +19,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('users', {
-      email: 'krishna@paylink.com',
+      email: 'krishna@mpoket.com',
     });
   },
 };

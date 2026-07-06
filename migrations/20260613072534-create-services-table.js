@@ -32,6 +32,7 @@ module.exports = {
       type: {
         type: Sequelize.ENUM('LOAN', 'ONE_TIME', 'PRODUCT'),
         allowNull: false,
+        defaultValue: 'ONE_TIME',
       },
       tenure_months: {
         type: Sequelize.INTEGER,

@@ -12,15 +12,16 @@ const createServiceService = async ({
     status,
     userId
 }) => {
+    const serviceType = type || 'ONE_TIME';
     const service = await Service.create({
-        name,
-        description,
+        name: name || null,
+        description: description || null,
         amount,
-        phone,
-        type,
-        tenure_months: type === 'LOAN' ? tenure_months : null,
-        isGeneratePaymentLink,
-        status,
+        phone: phone || null,
+        type: serviceType,
+        tenure_months: serviceType === 'LOAN' ? tenure_months || null : null,
+        isGeneratePaymentLink: Boolean(isGeneratePaymentLink),
+        status: status || 'UNPAID',
         user_id: userId
     });
     // if(isGeneratePaymentLink){
