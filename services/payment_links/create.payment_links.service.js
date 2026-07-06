@@ -43,7 +43,6 @@ const createPaymentLinkService = async ({
 
     if (!paymentLink) throw new AppError('Failed to create payment link', 500);
 
-    // Create Razorpay payment link only if not already created
     let razorpayError = null;
 
     if (!paymentLink.razorpay_link_id) {
