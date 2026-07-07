@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
+const { razorpayWebhookController } = require('./controllers/payment_link.controller');
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -23,6 +24,7 @@ app.use(
     credentials: true,
   })
 );
+app.post('/api/payment-links/webhook/razorpay', express.raw({ type: 'application/json' }), razorpayWebhookController);
 app.use(express.json());
 
 const authRoutes = require('./routes/auth.routes');

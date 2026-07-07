@@ -56,9 +56,10 @@ const createPaymentLinkService = async ({
     if (!service) throw new AppError('Failed to create service', 500);
 
     const token = crypto.randomBytes(18).toString('hex');
+    const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const paymentLink = await PaymentLink.create({
         payment_link: `/pay/${token}`,
-        expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        expiry_date: expiryDate,
         status: serviceStatus === 'PAID' ? 'PAID' : 'PENDING',
         service_id: service.id,
     });
@@ -86,6 +87,7 @@ const createPaymentLinkService = async ({
                 amount: Math.round(Number(amount) * 100), // Convert to paise
                 currency: 'INR',
                 description: serviceDescription || `Payment request for Rs. ${Number(amount).toLocaleString('en-IN')}`,
+                expire_by: Math.floor(expiryDate.getTime() / 1000),
                 reference_id: referenceId.slice(0, 40),
                 customer: customerPayload
             };
