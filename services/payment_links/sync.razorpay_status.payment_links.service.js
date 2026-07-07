@@ -8,15 +8,15 @@ const statusMap = {
     },
     cancelled: {
         paymentLinkStatus: 'CANCELLED',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'CANCELLED',
     },
     canceled: {
         paymentLinkStatus: 'CANCELLED',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'CANCELLED',
     },
     expired: {
         paymentLinkStatus: 'EXPIRED',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'EXPIRED',
     },
 };
 
@@ -24,7 +24,21 @@ const getRazorpayStatusUpdate = (razorpayPaymentLink) => {
     const rawStatus = String(razorpayPaymentLink?.status || '').toLowerCase();
     return statusMap[rawStatus] || {
         paymentLinkStatus: 'PENDING',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'PENDING',
+    };
+};
+
+const isLocallyExpired = (paymentLink) => {
+    if (!paymentLink?.expiry_date) return false;
+    return new Date(paymentLink.expiry_date).getTime() <= Date.now();
+};
+
+const getLocalExpiryStatusUpdate = (paymentLink) => {
+    if (!isLocallyExpired(paymentLink)) return null;
+
+    return {
+        paymentLinkStatus: 'EXPIRED',
+        serviceStatus: 'EXPIRED',
     };
 };
 
@@ -39,19 +53,24 @@ const fetchRazorpayPaymentLink = async (razorpayLinkId) => {
 };
 
 const syncRazorpayStatusForPaymentLink = async (paymentLink) => {
-    if (!paymentLink?.razorpay_link_id) return paymentLink;
+    if (!paymentLink?.razorpay_link_id && !isLocallyExpired(paymentLink)) return paymentLink;
     if (paymentLink.status === 'PAID') return paymentLink;
 
     try {
-        const razorpayPaymentLink = await fetchRazorpayPaymentLink(paymentLink.razorpay_link_id);
-        const statusUpdate = getRazorpayStatusUpdate(razorpayPaymentLink);
+        const razorpayPaymentLink = paymentLink.razorpay_link_id
+            ? await fetchRazorpayPaymentLink(paymentLink.razorpay_link_id)
+            : null;
+        const razorpayStatusUpdate = getRazorpayStatusUpdate(razorpayPaymentLink);
+        const statusUpdate = razorpayStatusUpdate.paymentLinkStatus === 'PENDING'
+            ? getLocalExpiryStatusUpdate(paymentLink) || razorpayStatusUpdate
+            : razorpayStatusUpdate;
 
         if (paymentLink.status === 'PAID' && statusUpdate.paymentLinkStatus !== 'PAID') {
             return paymentLink;
         }
 
-        const nextRazorpayStatus = razorpayPaymentLink.status || paymentLink.razorpay_status;
-        const nextShortUrl = razorpayPaymentLink.short_url || razorpayPaymentLink.url || paymentLink.razorpay_short_url;
+        const nextRazorpayStatus = razorpayPaymentLink?.status || paymentLink.razorpay_status;
+        const nextShortUrl = razorpayPaymentLink?.short_url || razorpayPaymentLink?.url || paymentLink.razorpay_short_url;
         const shouldUpdatePaymentLink =
             paymentLink.status !== statusUpdate.paymentLinkStatus ||
             paymentLink.razorpay_status !== nextRazorpayStatus ||
@@ -89,12 +108,30 @@ const syncRazorpayStatusForPaymentLink = async (paymentLink) => {
             error: message,
         });
 
+        const localExpiryStatusUpdate = getLocalExpiryStatusUpdate(paymentLink);
+        if (localExpiryStatusUpdate) {
+            await paymentLink.update({
+                status: localExpiryStatusUpdate.paymentLinkStatus,
+                razorpay_status: paymentLink.razorpay_status,
+                razorpay_short_url: paymentLink.razorpay_short_url,
+                razorpay_error: message,
+            });
+
+            if (paymentLink.service && paymentLink.service.status !== localExpiryStatusUpdate.serviceStatus) {
+                await paymentLink.service.update({ status: localExpiryStatusUpdate.serviceStatus });
+                paymentLink.service.status = localExpiryStatusUpdate.serviceStatus;
+            }
+        }
+
         return paymentLink;
     }
 };
 
 const syncRazorpayStatusForPaymentLinks = async (paymentLinks = []) => {
-    const syncableLinks = paymentLinks.filter((paymentLink) => paymentLink?.razorpay_link_id && paymentLink.status !== 'PAID');
+    const syncableLinks = paymentLinks.filter((paymentLink) => (
+        paymentLink?.status !== 'PAID' &&
+        (paymentLink.razorpay_link_id || isLocallyExpired(paymentLink))
+    ));
     const batchSize = 5;
 
     for (let index = 0; index < syncableLinks.length; index += batchSize) {

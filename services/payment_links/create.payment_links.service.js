@@ -3,6 +3,14 @@ const AppError = require("../../custom_classes/AppError.custom_class");
 const { PaymentLink, Service } = require("../../models");
 const getRazorpayClient = require("../razorpay/get.razorpay.client.service");
 
+const paymentLinkStatusFromServiceStatus = {
+    PAID: 'PAID',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED',
+    PENDING: 'PENDING',
+    UNPAID: 'PENDING',
+};
+
 const createPaymentLinkService = async ({
     name,
     description,
@@ -40,7 +48,7 @@ const createPaymentLinkService = async ({
     const paymentLink = await PaymentLink.create({
         payment_link: `/pay/${token}`,
         expiry_date: expiryDate,
-        status: serviceStatus === 'PAID' ? 'PAID' : 'PENDING',
+        status: paymentLinkStatusFromServiceStatus[serviceStatus] || 'PENDING',
         service_id: service.id,
     });
 

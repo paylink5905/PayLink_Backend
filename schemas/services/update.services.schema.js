@@ -76,10 +76,10 @@ const updateServiceSchema = z.object({
     })
     .optional(),
 
-    status: z.enum(['UNPAID', 'PAID'], {
+    status: z.enum(['UNPAID', 'PENDING', 'PAID', 'EXPIRED', 'CANCELLED'], {
         error: (issue) => {
             if (issue.input === undefined) return 'Status is required';
-            return 'Status must be either UNPAID or PAID';
+            return 'Status must be UNPAID, PENDING, PAID, EXPIRED, or CANCELLED';
         }
     })
     .optional(),

@@ -9,12 +9,12 @@ const eventStatusMap = {
     },
     'payment_link.cancelled': {
         paymentLinkStatus: 'CANCELLED',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'CANCELLED',
         razorpayStatus: 'cancelled',
     },
     'payment_link.expired': {
         paymentLinkStatus: 'EXPIRED',
-        serviceStatus: 'UNPAID',
+        serviceStatus: 'EXPIRED',
         razorpayStatus: 'expired',
     },
 };
