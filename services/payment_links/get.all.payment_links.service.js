@@ -1,4 +1,5 @@
 const { PaymentLink, Service } = require("../../models");
+const { syncRazorpayStatusForPaymentLinks } = require("./sync.razorpay_status.payment_links.service");
 
 const getAllPaymentLinksService = async ({ userId }) => {
     const paymentLinks = await PaymentLink.findAll({
@@ -12,7 +13,7 @@ const getAllPaymentLinksService = async ({ userId }) => {
         order: [['created_at', 'DESC']],
     });
 
-    return paymentLinks;
+    return syncRazorpayStatusForPaymentLinks(paymentLinks);
 };
 
 module.exports = getAllPaymentLinksService;

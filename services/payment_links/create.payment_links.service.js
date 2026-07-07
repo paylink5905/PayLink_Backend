@@ -1,27 +1,7 @@
 const crypto = require('crypto');
-const Razorpay = require('razorpay');
 const AppError = require("../../custom_classes/AppError.custom_class");
 const { PaymentLink, Service } = require("../../models");
-
-let razorpay = null;
-
-const getRazorpayClient = () => {
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (!keyId || !keySecret) {
-        throw new AppError('Razorpay credentials are not configured', 500);
-    }
-
-    if (!razorpay) {
-        razorpay = new Razorpay({
-            key_id: keyId,
-            key_secret: keySecret,
-        });
-    }
-
-    return razorpay;
-};
+const getRazorpayClient = require("../razorpay/get.razorpay.client.service");
 
 const createPaymentLinkService = async ({
     name,

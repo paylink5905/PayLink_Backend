@@ -1,10 +1,5 @@
-const Razorpay = require('razorpay');
 const AppError = require('../../custom_classes/AppError.custom_class');
-
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayClient = require('./get.razorpay.client.service');
 
 const createPaymentLinkService = async ({ amount, currency, receipt, description, customer_name, customer_email, customer_phone }) => {
     if (amount < 100) {
@@ -32,7 +27,7 @@ const createPaymentLinkService = async ({ amount, currency, receipt, description
             options.reference_id = receipt;
         }
 
-        const paymentLink = await razorpay.invoices.create({
+        const paymentLink = await getRazorpayClient().invoices.create({
             ...options,
             type: 'link'
         });

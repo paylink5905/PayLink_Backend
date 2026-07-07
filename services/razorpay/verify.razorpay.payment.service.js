@@ -1,10 +1,5 @@
-const Razorpay = require('razorpay');
 const AppError = require('../../custom_classes/AppError.custom_class');
-
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayClient = require('./get.razorpay.client.service');
 
 const getPaymentLinkStatusService = async ({ link_id }) => {
     if (!link_id) {
@@ -12,7 +7,7 @@ const getPaymentLinkStatusService = async ({ link_id }) => {
     }
 
     try {
-        const invoice = await razorpay.invoices.fetch(link_id);
+        const invoice = await getRazorpayClient().invoices.fetch(link_id);
 
         if (!invoice) {
             throw new AppError('Payment link not found', 404);
